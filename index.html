@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#1c1714" />
+<title>The List — your one wild life</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Spline+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f7f0e3;
+    --paper-2:#f1e7d4;
+    --card:#fffaf0;
+    --ink:#221c16;
+    --ink-soft:#5f554a;
+    --ink-faint:#9b9082;
+    --line:#e3d7c2;
+    --terra:#cf5a36;
+    --terra-deep:#a9421f;
+    --sage:#5a7d6c;
+    --gold:#c6962f;
+    --shadow:14px 18px 40px -22px rgba(60,40,20,.55);
+    --radius:18px;
+    --maxw:1080px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    font-family:"Spline Sans",-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 85% -8%, rgba(207,90,54,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(90,125,108,.12), transparent 55%),
+      var(--paper);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  /* faint paper grain */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.4;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+  }
+
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:28px 20px 120px;position:relative;z-index:1;}
+
+  /* ---------- Header ---------- */
+  header.masthead{
+    display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;
+    gap:18px;padding-bottom:22px;border-bottom:2px solid var(--ink);
+  }
+  .brand .kicker{
+    font-family:"Spline Sans Mono",monospace;font-size:.72rem;letter-spacing:.32em;
+    text-transform:uppercase;color:var(--terra-deep);font-weight:600;
+  }
+  .brand h1{
+    font-family:"Fraunces",serif;font-optical-sizing:auto;font-weight:600;
+    font-size:clamp(2.6rem,8vw,4.4rem);line-height:.92;letter-spacing:-.02em;
+    margin-top:4px;
+  }
+  .brand h1 em{font-style:italic;color:var(--terra);}
+  .brand .sub{color:var(--ink-soft);font-size:.95rem;margin-top:8px;max-width:34ch;}
+
+  /* progress dial */
+  .progress{display:flex;align-items:center;gap:16px;}
+  .dial{position:relative;width:92px;height:92px;flex:0 0 auto;}
+  .dial svg{transform:rotate(-90deg);}
+  .dial .pct{
+    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .dial .pct b{font-family:"Fraunces",serif;font-size:1.5rem;line-height:1;font-weight:600;}
+  .dial .pct span{font-family:"Spline Sans Mono",monospace;font-size:.6rem;letter-spacing:.1em;color:var(--ink-faint);text-transform:uppercase;}
+  .progress .ptext{font-family:"Spline Sans Mono",monospace;font-size:.78rem;color:var(--ink-soft);line-height:1.7;}
+  .progress .ptext b{color:var(--ink);}
+
+  /* ---------- Add bar ---------- */
+  .composer{
+    margin-top:26px;background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;
+  }
+  .composer .main-row{display:flex;gap:10px;align-items:center;}
+  .composer input.big{
+    flex:1;border:none;background:transparent;font-family:"Fraunces",serif;
+    font-size:clamp(1.05rem,3.4vw,1.4rem);color:var(--ink);padding:8px 6px;font-weight:500;
+  }
+  .composer input.big::placeholder{color:var(--ink-faint);font-style:italic;}
+  .composer input.big:focus{outline:none;}
+  button{font-family:"Spline Sans",sans-serif;cursor:pointer;border:none;}
+  .btn-add{
+    background:var(--terra);color:#fff;font-weight:600;font-size:.95rem;
+    padding:12px 22px;border-radius:12px;white-space:nowrap;letter-spacing:.01em;
+    transition:transform .12s ease, background .2s ease;box-shadow:0 8px 18px -10px var(--terra-deep);
+  }
+  .btn-add:hover{background:var(--terra-deep);transform:translateY(-1px);}
+  .btn-add:active{transform:translateY(1px) scale(.98);}
+  .toggle-more{
+    background:transparent;color:var(--ink-faint);font-size:1.4rem;line-height:1;
+    width:40px;height:40px;border-radius:10px;flex:0 0 auto;transition:.2s;
+  }
+  .toggle-more:hover{background:var(--paper-2);color:var(--ink);}
+  .more{
+    display:none;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);
+  }
+  .more.open{display:flex;}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:140px;}
+  .field label{font-family:"Spline Sans Mono",monospace;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);}
+  .field input, .field select, .field textarea{
+    font-family:"Spline Sans",sans-serif;font-size:.92rem;color:var(--ink);
+    background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:9px 11px;
+  }
+  .field textarea{resize:vertical;min-height:42px;}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--terra);}
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:26px;}
+  .tabs{display:inline-flex;background:var(--paper-2);border-radius:12px;padding:4px;gap:2px;}
+  .tab{
+    border:none;background:transparent;font-weight:600;font-size:.85rem;color:var(--ink-soft);
+    padding:8px 16px;border-radius:9px;transition:.18s;display:flex;align-items:center;gap:6px;
+  }
+  .tab .count{font-family:"Spline Sans Mono",monospace;font-size:.7rem;opacity:.6;}
+  .tab.active{background:var(--ink);color:var(--paper);}
+  .tab.active .count{opacity:.7;}
+  .search{
+    flex:1;min-width:160px;display:flex;align-items:center;gap:8px;background:var(--card);
+    border:1px solid var(--line);border-radius:12px;padding:0 12px;
+  }
+  .search input{border:none;background:transparent;flex:1;padding:11px 0;font-family:"Spline Sans";font-size:.9rem;color:var(--ink);}
+  .search input:focus{outline:none;}
+  .search svg{flex:0 0 auto;opacity:.5;}
+  select.sort{
+    font-family:"Spline Sans";font-size:.85rem;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;padding:11px 12px;color:var(--ink-soft);
+  }
+
+  /* category chips */
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+  .chip{
+    font-family:"Spline Sans Mono",monospace;font-size:.7rem;letter-spacing:.05em;
+    background:transparent;border:1px solid var(--line);color:var(--ink-soft);
+    padding:6px 12px;border-radius:999px;transition:.16s;text-transform:uppercase;
+  }
+  .chip:hover{border-color:var(--ink-faint);}
+  .chip.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+  /* ---------- Grid ---------- */
+  .grid{
+    margin-top:24px;display:grid;gap:18px;
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  }
+  .card{
+    position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px 20px 16px;box-shadow:var(--shadow);overflow:hidden;
+    transition:transform .18s ease, box-shadow .18s ease;
+    animation:rise .45s cubic-bezier(.2,.8,.25,1) both;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  .card:hover{transform:translateY(-3px);box-shadow:18px 24px 50px -24px rgba(60,40,20,.6);}
+  .card::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--terra);
+  }
+  .card.done::before{background:var(--sage);}
+  .card .cat{
+    font-family:"Spline Sans Mono",monospace;font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--terra-deep);font-weight:600;
+  }
+  .card.done .cat{color:var(--sage);}
+  .card h3{
+    font-family:"Fraunces",serif;font-weight:600;font-size:1.32rem;line-height:1.15;
+    margin:7px 0 0;letter-spacing:-.01em;word-break:break-word;
+  }
+  .card.done h3{color:var(--ink-soft);}
+  .card .notes{color:var(--ink-soft);font-size:.88rem;margin-top:8px;word-break:break-word;}
+  .card .meta{
+    font-family:"Spline Sans Mono",monospace;font-size:.7rem;color:var(--ink-faint);
+    margin-top:12px;display:flex;flex-wrap:wrap;gap:4px 14px;
+  }
+  .card .actions{
+    display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);
+  }
+  .act{
+    flex:1;font-size:.8rem;font-weight:600;padding:9px;border-radius:9px;transition:.15s;
+    display:flex;align-items:center;justify-content:center;gap:5px;border:1px solid transparent;
+  }
+  .act-done{background:var(--sage);color:#fff;}
+  .act-done:hover{filter:brightness(.94);}
+  .act-undo{background:var(--paper-2);color:var(--ink-soft);}
+  .act-undo:hover{background:var(--line);}
+  .act-icon{flex:0 0 auto;background:var(--paper-2);color:var(--ink-soft);width:40px;}
+  .act-icon:hover{background:var(--line);color:var(--ink);}
+  .act-del:hover{background:#f3d9d0;color:var(--terra-deep);}
+
+  /* achieved stamp */
+  .stamp{
+    position:absolute;top:14px;right:-6px;transform:rotate(8deg);
+    border:2.5px solid var(--sage);color:var(--sage);border-radius:8px;
+    padding:5px 9px 3px;text-align:center;background:rgba(255,250,240,.7);
+    opacity:.92;animation:stampIn .35s cubic-bezier(.2,1.4,.4,1) both;
+  }
+  @keyframes stampIn{from{opacity:0;transform:rotate(8deg) scale(1.8);}to{opacity:.92;transform:rotate(8deg) scale(1);}}
+  .stamp b{display:block;font-family:"Spline Sans Mono",monospace;font-weight:600;font-size:.7rem;letter-spacing:.18em;line-height:1;}
+  .stamp span{display:block;font-family:"Spline Sans Mono",monospace;font-size:.6rem;letter-spacing:.04em;margin-top:3px;}
+
+  /* empty state */
+  .empty{
+    grid-column:1/-1;text-align:center;padding:70px 20px;color:var(--ink-faint);
+  }
+  .empty .mark{font-family:"Fraunces",serif;font-size:3.4rem;color:var(--line);}
+  .empty p{font-family:"Fraunces",serif;font-style:italic;font-size:1.2rem;margin-top:8px;color:var(--ink-soft);}
+  .empty small{font-size:.85rem;}
+
+  /* ---------- Footer / data ---------- */
+  .databar{
+    margin-top:46px;padding-top:18px;border-top:1px solid var(--line);
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+    font-family:"Spline Sans Mono",monospace;font-size:.72rem;color:var(--ink-faint);
+  }
+  .databar .links{display:flex;gap:8px;flex-wrap:wrap;}
+  .linkbtn{
+    background:transparent;border:1px solid var(--line);color:var(--ink-soft);
+    font-family:"Spline Sans Mono",monospace;font-size:.72rem;padding:7px 12px;border-radius:8px;transition:.15s;
+  }
+  .linkbtn:hover{border-color:var(--ink-faint);color:var(--ink);}
+
+  /* ---------- Modal ---------- */
+  .overlay{
+    position:fixed;inset:0;z-index:50;background:rgba(34,28,22,.55);backdrop-filter:blur(3px);
+    display:none;align-items:center;justify-content:center;padding:20px;
+  }
+  .overlay.open{display:flex;animation:fade .2s ease;}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal{
+    background:var(--card);border-radius:var(--radius);max-width:440px;width:100%;
+    padding:24px;box-shadow:0 30px 80px -20px rgba(0,0,0,.5);animation:rise .3s ease both;
+  }
+  .modal h2{font-family:"Fraunces",serif;font-size:1.5rem;margin-bottom:16px;}
+  .modal .field{margin-bottom:12px;}
+  .modal .row{display:flex;gap:14px;margin-top:18px;}
+  .modal .row .act{flex:1;}
+  .btn-save{background:var(--terra);color:#fff;}
+  .btn-save:hover{background:var(--terra-deep);}
+  .btn-cancel{background:var(--paper-2);color:var(--ink-soft);}
+
+  /* toast */
+  .toast{
+    position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:var(--paper);padding:12px 20px;border-radius:11px;
+    font-size:.85rem;font-weight:500;opacity:0;pointer-events:none;transition:.25s;z-index:60;
+    box-shadow:0 14px 30px -10px rgba(0,0,0,.5);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:560px){
+    .wrap{padding:20px 14px 100px;}
+    .composer .main-row{flex-wrap:wrap;}
+    .composer input.big{flex:1 1 100%;}
+    .btn-add{flex:1;}
+    .progress{order:-1;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="brand">
+      <div class="kicker">Things to do before · est. <span id="estYear">2025</span></div>
+      <h1>The&nbsp;<em>List</em></h1>
+      <p class="sub">One wild and precious life. Write down what you'll do with it.</p>
+    </div>
+    <div class="progress">
+      <div class="dial">
+        <svg width="92" height="92" viewBox="0 0 92 92">
+          <circle cx="46" cy="46" r="40" fill="none" stroke="var(--line)" stroke-width="9"/>
+          <circle id="dialArc" cx="46" cy="46" r="40" fill="none" stroke="var(--terra)" stroke-width="9"
+                  stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3"
+                  style="transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.25,1);"/>
+        </svg>
+        <div class="pct"><b id="pctNum">0%</b><span>done</span></div>
+      </div>
+      <div class="ptext">
+        <b id="doneCount">0</b> achieved<br>
+        <b id="todoCount">0</b> to go<br>
+        <b id="totalCount">0</b> total
+      </div>
+    </div>
+  </header>
+
+  <!-- Composer -->
+  <div class="composer">
+    <div class="main-row">
+      <input class="big" id="newTitle" placeholder="What do you dream of doing?" autocomplete="off"
+             onkeydown="if(event.key==='Enter')addItem()">
+      <button class="toggle-more" id="moreBtn" title="More options" onclick="toggleMore()">+</button>
+      <button class="btn-add" onclick="addItem()">Add to list</button>
+    </div>
+    <div class="more" id="moreFields">
+      <div class="field">
+        <label>Category</label>
+        <input id="newCat" list="catList" placeholder="Travel, Skills…" autocomplete="off">
+        <datalist id="catList">
+          <option>Travel</option><option>Adventure</option><option>Skills</option>
+          <option>Career</option><option>Health &amp; Fitness</option><option>Relationships</option>
+          <option>Creative</option><option>Experiences</option><option>Giving back</option><option>Other</option>
+        </datalist>
+      </div>
+      <div class="field">
+        <label>Target date (optional)</label>
+        <input id="newTarget" type="date">
+      </div>
+      <div class="field" style="flex:1 1 100%;">
+        <label>Notes</label>
+        <textarea id="newNotes" placeholder="The why, the where, the how…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-tab="all" onclick="setTab('all')">All <span class="count" id="tAll">0</span></button>
+      <button class="tab" data-tab="todo" onclick="setTab('todo')">To do <span class="count" id="tTodo">0</span></button>
+      <button class="tab" data-tab="done" onclick="setTab('done')">Achieved <span class="count" id="tDone">0</span></button>
+    </div>
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="searchBox" placeholder="Search your list…" oninput="render()">
+    </div>
+    <select class="sort" id="sortSel" onchange="render()">
+      <option value="created">Newest first</option>
+      <option value="oldest">Oldest first</option>
+      <option value="az">A → Z</option>
+      <option value="target">By target date</option>
+    </select>
+  </div>
+
+  <div class="chips" id="chips"></div>
+
+  <!-- Grid -->
+  <div class="grid" id="grid"></div>
+
+  <!-- Data bar -->
+  <div class="databar">
+    <span id="storeNote">Saved on this device.</span>
+    <div class="links">
+      <button class="linkbtn" onclick="exportData()">↓ Backup (export)</button>
+      <button class="linkbtn" onclick="document.getElementById('importFile').click()">↑ Restore (import)</button>
+      <button class="linkbtn" onclick="seedSample()">✦ Add examples</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+</div>
+
+<!-- Edit modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2>Edit dream</h2>
+    <div class="field"><label>Title</label><input id="eTitle"></div>
+    <div class="field"><label>Category</label><input id="eCat" list="catList"></div>
+    <div class="field"><label>Target date</label><input id="eTarget" type="date"></div>
+    <div class="field"><label>Notes</label><textarea id="eNotes"></textarea></div>
+    <div class="field" id="eCompletedWrap" style="display:none;"><label>Date achieved</label><input id="eCompleted" type="date"></div>
+    <div class="row">
+      <button class="act btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="act btn-save" onclick="saveEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- storage (localStorage with in-memory fallback) ---------------- */
+const KEY = "bucketlist.v1";
+let memFallback = null;           // used if localStorage is blocked (e.g. in-chat preview)
+function loadStore(){
+  try{ const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : []; }
+  catch(e){ return memFallback || []; }
+}
+function saveStore(){
+  try{ localStorage.setItem(KEY, JSON.stringify(items)); }
+  catch(e){ memFallback = items; document.getElementById('storeNote').textContent =
+    "Preview mode — data won't persist here. It WILL save once you host the file."; }
+}
+
+/* ---------------- state ---------------- */
+let items = loadStore();
+let tab = "all";
+let activeCat = null;
+
+/* ---------------- helpers ---------------- */
+const $ = id => document.getElementById(id);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+const todayISO = () => new Date().toISOString().slice(0,10);
+function fmt(iso){
+  if(!iso) return "";
+  const d = new Date(iso + (iso.length===10 ? "T00:00:00" : ""));
+  return d.toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"});
+}
+function toast(msg){
+  const t=$("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),1900);
+}
+
+/* ---------------- add ---------------- */
+function toggleMore(){
+  const m=$("moreFields"); m.classList.toggle("open");
+  $("moreBtn").textContent = m.classList.contains("open") ? "–" : "+";
+}
+function addItem(){
+  const title = $("newTitle").value.trim();
+  if(!title){ $("newTitle").focus(); return; }
+  items.unshift({
+    id: uid(), title,
+    category: $("newCat").value.trim(),
+    notes: $("newNotes").value.trim(),
+    target: $("newTarget").value || "",
+    done:false, completed:null,
+    created: Date.now()
+  });
+  $("newTitle").value=""; $("newCat").value=""; $("newNotes").value=""; $("newTarget").value="";
+  saveStore(); render(); toast("Added to your list ✦"); $("newTitle").focus();
+}
+
+/* ---------------- actions ---------------- */
+function toggleDone(id){
+  const it = items.find(i=>i.id===id); if(!it) return;
+  it.done = !it.done;
+  it.completed = it.done ? todayISO() : null;
+  saveStore(); render();
+  toast(it.done ? "Achieved! 🎉  "+fmt(it.completed) : "Back on the list");
+}
+function delItem(id){
+  if(!confirm("Remove this from your list?")) return;
+  items = items.filter(i=>i.id!==id); saveStore(); render(); toast("Removed");
+}
+
+/* ---------------- edit modal ---------------- */
+let editing=null;
+function openEdit(id){
+  const it=items.find(i=>i.id===id); if(!it) return; editing=id;
+  $("eTitle").value=it.title; $("eCat").value=it.category||"";
+  $("eTarget").value=it.target||""; $("eNotes").value=it.notes||"";
+  $("eCompletedWrap").style.display = it.done ? "flex":"none";
+  $("eCompleted").value = it.completed||"";
+  $("overlay").classList.add("open");
+}
+function closeModal(){ $("overlay").classList.remove("open"); editing=null; }
+function saveEdit(){
+  const it=items.find(i=>i.id===editing); if(!it) return;
+  it.title=$("eTitle").value.trim()||it.title;
+  it.category=$("eCat").value.trim();
+  it.target=$("eTarget").value;
+  it.notes=$("eNotes").value.trim();
+  if(it.done) it.completed=$("eCompleted").value||it.completed;
+  saveStore(); render(); closeModal(); toast("Saved");
+}
+$("overlay").addEventListener("click",e=>{ if(e.target.id==="overlay") closeModal(); });
+
+/* ---------------- tabs / filters ---------------- */
+function setTab(t){
+  tab=t;
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));
+  render();
+}
+function setCat(c){ activeCat = (activeCat===c)?null:c; render(); }
+
+/* ---------------- render ---------------- */
+function render(){
+  const total=items.length;
+  const done=items.filter(i=>i.done).length;
+  const todo=total-done;
+
+  // stats
+  $("totalCount").textContent=total;
+  $("doneCount").textContent=done;
+  $("todoCount").textContent=todo;
+  $("tAll").textContent=total; $("tTodo").textContent=todo; $("tDone").textContent=done;
+  const pct = total? Math.round(done/total*100):0;
+  $("pctNum").textContent=pct+"%";
+  $("dialArc").style.strokeDashoffset = 251.3*(1-pct/100);
+  $("dialArc").setAttribute("stroke", pct===100 && total>0 ? "var(--sage)" : "var(--terra)");
+
+  // category chips
+  const cats=[...new Set(items.map(i=>i.category).filter(Boolean))];
+  const chipBox=$("chips");
+  chipBox.innerHTML = cats.length
+    ? cats.map(c=>`<button class="chip ${activeCat===c?'active':''}" onclick="setCat('${esc(c)}')">${escHTML(c)}</button>`).join("")
+    : "";
+
+  // filter
+  const q=$("searchBox").value.trim().toLowerCase();
+  let list=items.filter(i=>{
+    if(tab==="todo"&&i.done) return false;
+    if(tab==="done"&&!i.done) return false;
+    if(activeCat&&i.category!==activeCat) return false;
+    if(q && !(`${i.title} ${i.category} ${i.notes}`.toLowerCase().includes(q))) return false;
+    return true;
+  });
+
+  // sort
+  const s=$("sortSel").value;
+  list.sort((a,b)=>{
+    if(s==="created") return b.created-a.created;
+    if(s==="oldest") return a.created-b.created;
+    if(s==="az") return a.title.localeCompare(b.title);
+    if(s==="target") return (a.target||"9999").localeCompare(b.target||"9999");
+  });
+
+  // build
+  const grid=$("grid");
+  if(!list.length){
+    grid.innerHTML=`<div class="empty"><div class="mark">✦</div>
+      <p>${total? "Nothing here yet.":"Your list is a blank page."}</p>
+      <small>${total? "Try another filter, or add something new above.":"Add your first dream above — or tap “Add examples”."}</small></div>`;
+    return;
+  }
+  grid.innerHTML=list.map((i,idx)=>cardHTML(i,idx)).join("");
+}
+
+function cardHTML(i,idx){
+  const cat = i.category ? `<div class="cat">${escHTML(i.category)}</div>` : `<div class="cat" style="opacity:.4">Unfiled</div>`;
+  const notes = i.notes ? `<div class="notes">${escHTML(i.notes)}</div>`:"";
+  const meta=[];
+  if(i.target && !i.done) meta.push(`◎ aim by ${fmt(i.target)}`);
+  if(i.done && i.completed) meta.push(`✓ ${fmt(i.completed)}`);
+  const metaHTML = meta.length? `<div class="meta">${meta.map(m=>`<span>${m}</span>`).join("")}</div>`:"";
+  const stamp = i.done ? `<div class="stamp"><b>ACHIEVED</b><span>${fmt(i.completed)}</span></div>`:"";
+  const doneBtn = i.done
+    ? `<button class="act act-undo" onclick="toggleDone('${i.id}')">↺ Undo</button>`
+    : `<button class="act act-done" onclick="toggleDone('${i.id}')">✓ Mark done</button>`;
+  return `<div class="card ${i.done?'done':''}" style="animation-delay:${Math.min(idx*40,400)}ms">
+    ${stamp}${cat}
+    <h3>${escHTML(i.title)}</h3>
+    ${notes}${metaHTML}
+    <div class="actions">
+      ${doneBtn}
+      <button class="act act-icon" title="Edit" onclick="openEdit('${i.id}')">✎</button>
+      <button class="act act-icon act-del" title="Delete" onclick="delItem('${i.id}')">🗑</button>
+    </div>
+  </div>`;
+}
+
+/* ---------------- escaping ---------------- */
+function escHTML(s){return (s||"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function esc(s){return (s||"").replace(/'/g,"\\'");}
+
+/* ---------------- export / import ---------------- */
+function exportData(){
+  const blob=new Blob([JSON.stringify(items,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="bucket-list-"+todayISO()+".json";
+  a.click(); URL.revokeObjectURL(a.href);
+  toast("Backup downloaded");
+}
+function importData(ev){
+  const f=ev.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const data=JSON.parse(r.result);
+      if(!Array.isArray(data)) throw 0;
+      if(items.length && !confirm("Replace your current list with the imported one?")) return;
+      items=data; saveStore(); render(); toast("List restored ("+data.length+" items)");
+    }catch(e){ toast("Couldn't read that file"); }
+  };
+  r.readAsText(f); ev.target.value="";
+}
+
+/* ---------------- sample data ---------------- */
+function seedSample(){
+  const samples=[
+    {title:"See the northern lights",category:"Travel",notes:"Aim for Tromsø or Iceland, Sept–March.",target:""},
+    {title:"Run a half marathon",category:"Health & Fitness",notes:"Couch-to-21k plan.",target:""},
+    {title:"Learn to cook one dish from 10 countries",category:"Skills",notes:"",target:""},
+    {title:"Write letters to my future self",category:"Creative",notes:"One per year, sealed.",target:""},
+    {title:"Watch a sunrise from a mountain top",category:"Adventure",notes:"",target:""}
+  ];
+  samples.forEach(s=>items.unshift({id:uid(),done:false,completed:null,created:Date.now()+Math.random(),...s}));
+  saveStore(); render(); toast("Added a few ideas ✦");
+}
+
+/* ---------------- init ---------------- */
+$("estYear").textContent=new Date().getFullYear();
+render();
+</script>
+</body>
+</html>
